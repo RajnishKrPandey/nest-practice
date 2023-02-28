@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { Body, Post } from '@nestjs/common/decorators';
-import { ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -9,7 +9,7 @@ import { UsersService } from './users.service';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  // dependency injection: which class I need to instantiate for you behind the scenes
+  
   constructor(private usersService: UsersService) {}
 
   @ApiOkResponse({type: User, isArray: true})
@@ -20,9 +20,18 @@ export class UsersController {
   }
   
   @ApiOkResponse({type: User, description: 'the user'})
+  @ApiNotFoundResponse()
   @Get(':id')
   getUserById(@Param('id') id: string): User {
-    return this.usersService.findById(Number(id));
+    //TODO: auto parse ID
+
+    const user = this.usersService.findById(Number(id));
+
+    if(!user) {
+        throw new NotFoundException();
+    }
+
+    return user;
   }
   @ApiCreatedResponse({type: User})
   @Post()
