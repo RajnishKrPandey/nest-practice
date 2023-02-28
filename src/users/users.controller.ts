@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { Body, Post } from '@nestjs/common/decorators';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -13,12 +13,13 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @ApiOkResponse({type: User, isArray: true})
+  @ApiQuery({name: 'name', required: false})
   @Get()
-  getUsers(): User[] {
-    return this.usersService.findAll();
+  getUsers(@Query('name') name: string): User[] {
+    return this.usersService.findAll(name);
   }
   
-  @ApiOkResponse({type: User})
+  @ApiOkResponse({type: User, description: 'the user'})
   @Get(':id')
   getUserById(@Param('id') id: string): User {
     return this.usersService.findById(Number(id));
