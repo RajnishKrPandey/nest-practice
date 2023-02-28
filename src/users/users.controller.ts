@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { Body, Post } from '@nestjs/common/decorators';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -22,8 +22,8 @@ export class UsersController {
   @ApiOkResponse({type: User, description: 'the user'})
   @ApiNotFoundResponse()
   @Get(':id')
-  getUserById(@Param('id') id: string): User {
-    //TODO: auto parse ID
+  getUserById(@Param('id', ParseIntPipe) id: number): User {
+    
 
     const user = this.usersService.findById(Number(id));
 
@@ -34,6 +34,7 @@ export class UsersController {
     return user;
   }
   @ApiCreatedResponse({type: User})
+  @ApiBadRequestResponse()
   @Post()
   createUser(@Body() body: CreateUserDto): User {
     return this.usersService.createUser(body);
